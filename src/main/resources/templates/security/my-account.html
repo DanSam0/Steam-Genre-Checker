@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Steam Genre Checker - My Account</title>
+    <link th:href="@{/styles/general.css}" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+
+<nav class="navbar sticky-top bg-dark navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+    <div class="container-xl">
+        <a class="navbar-brand" th:href="@{/}">Steam Genre Checker</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}" aria-current="page">Home</a>
+                </li>
+                <li class="nav-item" th:if="${session.user}" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/users}">Users list</a>
+                </li>
+                <li class="nav-item" th:if="${session.user}">
+                    <a class="nav-link active" th:href="@{/my}">My account</a>
+                </li>
+            </ul>
+            <form th:if="${session.user}" th:action="@{/logout}" method="POST" class="d-flex">
+                <input type="submit" value="Logout" class="btn btn-secondary" />
+            </form>
+        </div>
+    </div>
+</nav>
+
+<!-- Navbar -->
+
+    <div class="container mt-5" style="width: 400px; flex: 1;">
+
+        <h3 class="text-white m-auto mb-3" th:text="${session.user.name} + ' settings'"></h3>
+
+
+            <!-- Without api key -->
+
+            <div th:if="!${session.user.apiKey}">
+                <form th:action="@{/my/saveApiKey}" method="POST">
+
+                    <div class="form-group">
+
+                        <div class="col-xs-15">
+
+                            <div th:if="${keyError}">
+
+                                <div class="alert alert-danger col-xs-offset-1 col-xs-10">
+                                    <span th:text="${keyError}"></span>
+                                </div>
+
+                            </div>
+
+                            <div th:if="${keyRemove}">
+
+                                <div class="alert alert-warning col-xs-offset-1 col-xs-10">
+                                    <span th:text="${keyRemove}"></span>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <label class="form-label text-white">Steam Api Key</label>
+
+                    <div class="mb-3 input-group">
+                        <input type="text" th:value="${session.user.apiKey}" name="apiKey" class="form-control w-auto" aria-describedby="button-addon1">
+                        <input type="submit" class="btn btn-success" style="width: 80px" value="Save" id="button-addon1">
+                    </div>
+
+                </form>
+            </div>
+
+        <!-- With api key -->
+
+        <div th:if="${session.user.apiKey}">
+
+                <form th:action="@{/my/removeApiKey}" method="POST">
+
+                    <div class="form-group">
+
+                        <div class="col-xs-15">
+
+                            <div th:if="${keySuccess}">
+
+                                <div class="alert alert-success col-xs-offset-1 col-xs-10">
+                                    <span th:text="${keySuccess}"></span>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <label class="form-label text-white">Steam Api Key</label>
+
+                    <div class="mb-3 input-group">
+                        <input type="text" th:value="${session.user.apiKey}" name="apiKey" class="form-control w-auto" aria-describedby="button-addon3" disabled>
+                        <input type="submit" class="btn btn-danger" style="width: 80px" value="Remove" id="button-addon3">
+                    </div>
+
+                </form>
+            </div>
+
+        <!-- Password -->
+
+        <div>
+
+            <form th:action="@{/my/updatePassword}" method="POST" th:object="${userDto}">
+
+                <div class="form-group">
+
+                    <div class="col-xs-15">
+
+                        <div th:if="${passwordError}">
+
+                            <div class="alert alert-danger col-xs-offset-1 col-xs-10">
+                                <span th:text="${passwordError}"></span>
+                            </div>
+
+                        </div>
+
+                        <div th:if="${passwordSuccess}">
+
+                            <div class="alert alert-success col-xs-offset-1 col-xs-10">
+                                <span th:text="${passwordSuccess}"></span>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <input type="hidden" th:field="*{name}">
+
+                <label for="3" class="form-label text-white">New password</label>
+                <div class="mb-3 input-group">
+                    <input type="password" th:field="*{password}" name="password" class="form-control" id="3" placeholder=""  aria-describedby="button-addon1">
+                    <input type="submit" value="Save" class="float-end btn btn-success" style="width: 80px" id="button-addon2"/>
+
+                </div>
+
+                <div th:if="${#fields.hasErrors('password')}" class="text-danger mb-3">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('password')}" th:text="'Password ' + ${err}" />
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <label for="4" class="form-label text-white">Confirm new password</label>
+                    <input type="password" th:field="*{confirmPassword}" name="confirmPassword" class="form-control" id="4" placeholder="">
+                </div>
+
+                <div th:if="${#fields.hasErrors('confirmPassword')}" class="text-danger mb-3">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('confirmPassword')}" th:text="'Confirm password ' + ${err}" />
+                    </ul>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <footer class="fluid-container position-relative bg-dark p-5 text-light-emphasis text-center">
+        <span>Steam Genre Checker was created by DanSam0</span>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
